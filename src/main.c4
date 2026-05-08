@@ -1,0 +1,19 @@
+
+use vga::vga as vg
+use std::io  as io
+
+pub fn main()->void:
+    vg::Color foregroundColor = vg::Color::Magenta
+    vg::Color backgroundColor = vg::Color::Black
+ 
+    vg::ColorCode colorCode
+    colorCode.Set(foregroundColor,backgroundColor)
+
+
+    vg::Vga vga
+    vga.Set(753664 as char *,colorCode)
+
+
+    vga.Print("@ Hello testOS Kernel (*)")
+    vga.Print(" - VGA - is a go !!!!!!!!")
+:

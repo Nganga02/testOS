@@ -1,0 +1,55 @@
+
+
+enum Color:
+    Black   = 0
+    Blue    = 1
+    Green   = 2
+    Cyan    = 3
+    Red     = 4
+    Magenta = 5
+    Brown   = 6
+:
+
+struct ColorCode:
+    char color
+:
+
+impl ColorCode:
+    fn Set(char foreGround,char backGround)->void:
+        self->color = (backGround << 4) | (foreGround & 15)
+    :
+:
+
+struct Vga:
+    char *vgaBuffer
+    ColorCode color
+    i32 index
+:
+
+impl Vga:
+    fn Set(char *address,ColorCode color)->void:
+        self->vgaBuffer = address
+        self->color     = color
+        self->index     = 0
+    :
+
+    fn Print(str message)->i32:
+        i32 ii = 0
+        while 1:
+            if message[ii / 2]:
+                char c                  = message[ii / 2]
+                self->vgaBuffer[ii]     = c
+                self->vgaBuffer[ii + 1] = self->color.color
+                ii += 2
+            :
+            else:
+                break
+            :
+        :
+
+        self->vgaBuffer@advance(ii)
+
+        return ii / 2
+    :
+:
+

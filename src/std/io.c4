@@ -1,0 +1,21 @@
+pub fn print(char *vga,str message)->i32:
+    i32 ii = 0
+    while 1:
+        if message@read():
+            char c = message@read()
+            message@advance(1)
+
+            vga[ii]     = c
+            vga[ii + 1] = 11
+            ii += 2
+        :
+        else:
+            break
+        :
+    :
+
+    return ii
+:
+
+
+
