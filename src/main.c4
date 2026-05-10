@@ -27,47 +27,7 @@ pub fn main()->i32:
 
     pci::PCI pciDriver
     pciDriver.Init(pci::PCIPort::Address,pci::PCIPort::Data)
+    pciDriver.Probe()
 
-    u64 bus = 0
-    
-    while bus < 256:
-        u64 device = 0
-
-        while device < 32:
-            pci::PCIDevice pciDevice = pciDriver.getPCIDevice(bus,device,0)
-            u64 functions        = 1
-
-            if pciDevice.HasMultipleFunctions() == 1:
-                functions = 8
-            :
-
-            u64 function = 0
-    
-            while function < functions:
-                pciDevice = pciDriver.getPCIDevice(bus,device,function)
-
-                if pciDevice.vendorId == 65535:
-                    function += 1
-                    continue
-                :
-
-
-                if pciDevice.IsUSBController() == 1:
-                    serialDriver.Write("Found an USB Controller\n")
-                :
-
-                if pciDevice.IsNetworkCard() == 1:
-                    serialDriver.Write("Found a Network Card\n")
-                :
-
-                function += 1
-            :
-
-            device += 1
-        :
-
-        bus += 1
-    :
-
-    serialDriver.Write("====== probing Complete ==================")
+    serialDriver.Write("-> TODO => Implement Kernel Panic\n")
 :

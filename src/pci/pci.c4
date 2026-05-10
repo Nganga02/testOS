@@ -1,4 +1,5 @@
 use io::port as ports
+use serial::serial as serial
 
 struct PCIDevice:
     u8 bus
@@ -73,25 +74,74 @@ impl PCI:
     fn getPCIDevice(u8 bus,u8 device,u8 function)->PCIDevice:
         PCIDevice pciDevice
 
-        pciDevice.bus      = bus
-        pciDevice.device   = device
-        pciDevice.function = function
+        pciDevice.bus           = bus
+        pciDevice.device        = device
+        pciDevice.function      = function
 
         
-        pciDevice.vendorId      = self->Read(bus,device,function,0)
-        pciDevice.deviceId      = self->Read(bus,device,function,2)
-        pciDevice.command       = self->Read(bus,device,function,4)
-        pciDevice.status        = self->Read(bus,device,function,6)
-        pciDevice.revisionId    = self->Read(bus,device,function,8) & 255
-        pciDevice.progIf        = (self->Read(bus,device,function,8) >> 8) & 255
-        pciDevice.subClassId    = self->Read(bus,device,function,10) & 255
+        pciDevice.vendorId      = (self->Read(bus,device,function,0)  >> 0) & 65535
+        pciDevice.deviceId      = (self->Read(bus,device,function,2)  >> 0) & 65535
+        pciDevice.command       = (self->Read(bus,device,function,4)  >> 0) & 65535
+        pciDevice.status        = (self->Read(bus,device,function,6)  >> 0) & 65535
+        pciDevice.revisionId    = (self->Read(bus,device,function,8)  >> 0) & 255
+        pciDevice.progIf        = (self->Read(bus,device,function,8)  >> 8) & 255
+        pciDevice.subClassId    = (self->Read(bus,device,function,10) >> 0) & 255
         pciDevice.classId       = (self->Read(bus,device,function,10) >> 8) & 255
-        pciDevice.cacheLineSize = self->Read(bus,device,function,12) & 255
+        pciDevice.cacheLineSize = (self->Read(bus,device,function,12) >> 0) & 255
         pciDevice.latencyTimer  = (self->Read(bus,device,function,12) >> 8) & 255
-        pciDevice.headerType    = self->Read(bus,device,function,14) & 255
+        pciDevice.headerType    = (self->Read(bus,device,function,14) >> 0) & 255
         pciDevice.bist          = (self->Read(bus,device,function,14) >> 8) & 255
 
         return pciDevice
+    :
+
+
+    fn Probe()->void:
+        serial::Serial serialDriver
+        serialDriver.Init()
+
+        u64 bus = 0
+        
+        while bus < 256:
+            u64 device = 0
+
+            while device < 32:
+                pci::PCIDevice pciDevice = self->getPCIDevice(bus,device,0)
+                u64 functions            = 1
+
+                if pciDevice.HasMultipleFunctions() == 1:
+                    functions = 8
+                :
+
+                u64 function = 0
+        
+                while function < functions:
+                    pciDevice = self->getPCIDevice(bus,device,function)
+
+                    if pciDevice.vendorId == 65535:
+                        function += 1
+                        continue
+                    :
+
+
+                    if pciDevice.IsUSBController() == 1:
+                        serialDriver.Write("Found an USB Controller\n")
+                    :
+
+                    if pciDevice.IsNetworkCard() == 1:
+                        serialDriver.Write("Found a Network Card\n")
+                    :
+
+                    function += 1
+                :
+
+                device += 1
+            :
+
+            bus += 1
+        :
+
+        serialDriver.Write("====== probing Complete ==================\n\n")
     :
 :
 
