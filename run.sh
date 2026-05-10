@@ -6,11 +6,14 @@ make clean
 
 #qemu-system-x86_64 kernel.bin -net user -net nic,model=pcnet -device usb-ehci,id=ehci -device qemu-xhci,id=uhci
 
-qemu-system-x86_64            \
-    kernel.bin                \
-    -net user                 \
-    -net nic,model=pcnet      \
-    -device usb-ehci,id=ehci  \
-    -device qemu-xhci,id=uhci \
-    -nographic
 
+
+qemu-system-x86_64 \
+    kernel.bin \
+    -netdev user,id=net0 \
+    -device pcnet,netdev=net0 \
+    -netdev user,id=net1 \
+    -device rtl8139,netdev=net1 \
+    -device usb-ehci,id=ehci \
+    -device qemu-xhci,id=xhci \
+    -nographic

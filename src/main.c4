@@ -2,6 +2,7 @@
 use vga::vga as vg
 use serial::serial as serial
 use pci::pci as pci
+use std::io as io
 
 pub fn main()->i32:
     vg::Color foregroundColor = vg::Color::Magenta
@@ -9,13 +10,11 @@ pub fn main()->i32:
  
     vg::ColorCode colorCode
     colorCode.Set(foregroundColor,backgroundColor)
-       
+
     vg::Vga vga
     vga.Set(753664 as char *,colorCode)
     vga.Print(" - VGA - is a go !!!!!!!!")
-
-
-
+    vga.Print(" Writing a Network Stack Now!!!!!!!!")
 
     serial::Serial serialDriver
     serialDriver.Init()

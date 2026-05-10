@@ -26,8 +26,16 @@ impl PCIDevice:
         return self->headerType & (1 << 7)
     :
 
-    fn IsNetworkCard()->i32:
+    fn IsAMDPCNet()->i32:
         return (self->vendorId == 4130) && (self->deviceId == 8192) 
+    :
+
+    fn IsRTL8139()->i32:
+        return (self->vendorId == 4332) && (self->deviceId == 33081)
+    :
+
+    fn IsNetworkCard()->i32:
+        return self->IsAMDPCNet() || self->IsRTL8139()
     :
 
     fn IsUSBController()->i32:
@@ -128,8 +136,13 @@ impl PCI:
                         serialDriver.Write("Found an USB Controller\n")
                     :
 
-                    if pciDevice.IsNetworkCard() == 1:
-                        serialDriver.Write("Found a Network Card\n")
+                    if pciDevice.IsAMDPCNet() == 1:
+                        serialDriver.Write("Found a Network Card :: AMD PCNet\n")
+                    :
+
+
+                    if pciDevice.IsRTL8139() == 1:
+                        serialDriver.Write("Found a Network Card :: RTL8139\n")
                     :
 
                     function += 1
