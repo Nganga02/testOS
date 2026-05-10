@@ -35,16 +35,16 @@ impl Vga:
 
     fn Print(str message)->i32:
         i32 ii = 0
+
         while 1:
-            if message[ii / 2]:
-                char c                  = message[ii / 2]
-                self->vgaBuffer[ii]     = c
-                self->vgaBuffer[ii + 1] = self->color.color
-                ii += 2
-            :
-            else:
+            if message[ii / 2] == 0:
                 break
             :
+
+            char c                  = message[ii / 2]
+            self->vgaBuffer[ii]     = c
+            self->vgaBuffer[ii + 1] = self->color.color
+            ii += 2
         :
 
         self->vgaBuffer@advance(ii)

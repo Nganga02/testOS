@@ -7,14 +7,6 @@ extern main
 
 _start:
 pm_begin:
-	;extern __bss_start
-	;extern __bss_end
-	;
-	;mov edi, __bss_start
-	;mov ecx, __bss_end
-	;sub ecx, edi
-	;xor eax, eax
-	;rep stosb
 
 	mov ax,DATA_SEG
 	mov ds,ax
@@ -26,7 +18,7 @@ pm_begin:
 	mov ebp,esp
 
 
-    	call main
+    call main
 	jmp $
 	hlt
 	jmp pm_begin ; should never reach here

@@ -16,4 +16,5 @@ pub fn main()->void:
 
     vga.Print("@ Hello testOS Kernel (*)")
     vga.Print(" - VGA - is a go !!!!!!!!")
+    vga.Print(" # great ARIEL @@@@@@@@@@@")
 :

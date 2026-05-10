@@ -1,0 +1,9 @@
+foreign "C":
+    fn inportb(u16 port)->u8
+    fn inportw(u16 port)->u16
+    fn inportd(u16 port)->u32
+
+    fn outportb(u16 port,u8 data)->void
+    fn outportw(u16 port,u16 data)->void
+    fn outportd(u16 port,u32 data)->void
+:
