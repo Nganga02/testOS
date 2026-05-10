@@ -1,0 +1,71 @@
+
+use io::io as io
+
+struct Serial:
+    u16 port
+:
+
+
+
+
+impl Serial:
+
+    fn Init()->u16:
+        i32 ii = 0
+
+        while ii < 4:
+            u16 port = (1024 as u16 *)@offset(ii)@read()
+            ii += 1
+
+            if port == 0:
+                continue
+            :
+
+            io::DeviceWrite8(port + 1,0)
+            io::DeviceWrite8(port + 3,128)
+            io::DeviceWrite8(port + 0,1)
+            io::DeviceWrite8(port + 1,00)
+            io::DeviceWrite8(port + 3,3)
+            io::DeviceWrite8(port + 2,00)
+            io::DeviceWrite8(port + 4,11)
+
+            self->port = port
+
+            break
+       :
+    :
+
+
+    fn TransmitEmpty()->i32:
+        return io::DeviceRead8(self->port + 5) & 32
+    :
+
+    fn WriteByte(char c)->void:
+        while self->TransmitEmpty() == 0:
+            // poll
+        :
+
+        io::DeviceWrite8(self->port,c)
+    :
+
+    fn Write(str message)->u32:
+        u32 ii = 0
+
+        while 1:
+            char c = message[ii]
+
+            if c == 0:
+                break
+            :
+
+            self->WriteByte(c)
+
+            ii += 1
+        :
+
+        return ii
+    :
+
+:
+
+

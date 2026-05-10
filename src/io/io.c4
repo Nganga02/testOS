@@ -7,3 +7,30 @@ foreign "C":
     fn outportw(u16 port,u16 data)->void
     fn outportd(u16 port,u32 data)->void
 :
+
+
+fn DeviceRead8(u16 port)->u8:
+    return inportb(port)
+:
+
+
+fn DeviceRead16(u16 port)->u16:
+    return inportw(port)
+:
+
+fn DeviceRead32(u16 port)->u32:
+    return inportd(port)
+:
+
+fn DeviceWrite8(u16 port,u8 data)->void:
+    return outportb(port,data)
+:
+
+fn DeviceWrite16(u16 port,u16 data)->void:
+    return outportw(port,data)
+:
+
+
+fn DeviceWrite32(u16 port,u32 data)->void:
+    return outportd(port,data)
+:
