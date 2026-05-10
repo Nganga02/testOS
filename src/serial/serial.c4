@@ -1,8 +1,15 @@
+use io::port as ports
 
-use io::io as io
+
 
 struct Serial:
     u16 port
+    ports::Port8 data
+    ports::Port8 interrupt
+    ports::Port8 fifoControl
+    ports::Port8 lineControl
+    ports::Port8 modemControl
+    ports::Port8 lineStatus
 :
 
 
@@ -11,6 +18,13 @@ struct Serial:
 impl Serial:
 
     fn Init()->u16:
+        ports::Port8 data
+        ports::Port8 interrupt
+        ports::Port8 fifoControl
+        ports::Port8 lineControl
+        ports::Port8 modemControl
+        ports::Port8 lineStatus
+
         i32 ii = 0
 
         while ii < 4:
@@ -21,15 +35,29 @@ impl Serial:
                 continue
             :
 
-            io::DeviceWrite8(port + 1,0)
-            io::DeviceWrite8(port + 3,128)
-            io::DeviceWrite8(port + 0,1)
-            io::DeviceWrite8(port + 1,00)
-            io::DeviceWrite8(port + 3,3)
-            io::DeviceWrite8(port + 2,00)
-            io::DeviceWrite8(port + 4,11)
+            data.Init(port + 0)           // BASE_PORT + 0
+            interrupt.Init(port + 1)      // BASE_PORT + 1
+            fifoControl.Init(port + 2)    // BASE_PORT + 2
+            lineControl.Init(port + 3)    // BASE_PORT + 3
+            modemControl.Init(port + 4)   // BASE_PORT + 4
+            lineStatus.Init(port + 5)     // BASE_PORT + 5
 
-            self->port = port
+
+            interrupt.Write(0)
+            lineControl.Write(128)
+            data.Write(1)
+            interrupt.Write(0)
+            lineControl.Write(3)
+            fifoControl.Write(0)
+            modemControl.Write(11)
+
+
+            self->data           = data
+            self->interrupt      = interrupt
+            self->fifoControl    = fifoControl
+            self->lineControl    = lineControl
+            self->modemControl   = modemControl
+            self->lineStatus     = lineStatus
 
             break
        :
@@ -37,7 +65,7 @@ impl Serial:
 
 
     fn TransmitEmpty()->i32:
-        return io::DeviceRead8(self->port + 5) & 32
+        return self->lineStatus.Read() & 32
     :
 
     fn WriteByte(char c)->void:
@@ -45,7 +73,7 @@ impl Serial:
             // poll
         :
 
-        io::DeviceWrite8(self->port,c)
+        self->data.Write(c)
     :
 
     fn Write(str message)->u32:

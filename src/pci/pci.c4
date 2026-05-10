@@ -1,0 +1,3 @@
+struct PCIDevice:
+    u16 configAddress
+:

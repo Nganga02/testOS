@@ -1,0 +1,63 @@
+use io::io as io
+
+struct Port8:
+    u16 port
+:
+
+impl Port8:
+    fn Init(u16 port)->void:
+        self->port = port
+    :
+
+    fn Read()->u8:
+        return io::DeviceRead8(self->port)
+    :
+
+    fn Write(u8 data)->void:
+        return io::DeviceWrite8(self->port,data)
+    :
+:
+
+
+
+struct Port16:
+    u16 port
+:
+
+impl Port16:
+    fn Init(u16 port)->void:
+        self->port = port
+    :
+
+    fn Read()->u16:
+        return io::DeviceRead16(self->port)
+    :
+
+    fn Write(u16 data)->void:
+        return io::DeviceWrite16(self->port,data)
+    :
+:
+
+
+
+
+
+
+
+struct Port32:
+    u16 port
+:
+
+impl Port32:
+    fn Init(u16 port)->void:
+        self->port = port
+    :
+
+    fn Read()->u32:
+        return io::DeviceRead32(self->port)
+    :
+
+    fn Write(u32 data)->void:
+        return io::DeviceWrite32(self->port,data)
+    :
+:
