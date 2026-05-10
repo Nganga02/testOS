@@ -6,11 +6,11 @@ make clean
 
 #qemu-system-x86_64 kernel.bin -net user -net nic,model=pcnet -device usb-ehci,id=ehci -device qemu-xhci,id=uhci
 
-qemu-system-x86_64 \
-    kernel.bin \
-    -net user \
-    -net nic,model=pcnet \
-    -device usb-ehci,id=ehci \
+qemu-system-x86_64            \
+    kernel.bin                \
+    -net user                 \
+    -net nic,model=pcnet      \
+    -device usb-ehci,id=ehci  \
     -device qemu-xhci,id=uhci \
-    -serial stdio
+    -nographic
 

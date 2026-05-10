@@ -1,3 +1,102 @@
+use io::port as ports
+
 struct PCIDevice:
-    u16 configAddress
+    u8 bus
+    u8 device
+    u8 function
+
+    u16 vendorId
+    u16 deviceId
+    u16 command
+    u16 status
+    u8 revisionId
+    u8 progIf
+    u8 subClassId
+    u8 classId
+    u8 cacheLineSize
+    u8 latencyTimer
+    u8 headerType
+    u8 bist
 :
+
+
+impl PCIDevice:
+    fn HasMultipleFunctions()->i32:
+        return self->headerType & (1 << 7)
+    :
+
+    fn IsNetworkCard()->i32:
+        return (self->vendorId == 4130) && (self->deviceId == 8192) 
+    :
+
+    fn IsUSBController()->i32:
+        return (self->classId == 12) && (self->subClassId == 3)
+    :
+:
+
+
+
+
+enum PCIPort:
+    Address = 3320
+    Data    = 3324
+:
+
+struct PCI:
+    ports::Port32 address
+    ports::Port32 data
+:
+
+
+impl PCI:
+    fn Init(u16 addressPort,u16 dataPort)->void:
+        self->address.Init(addressPort)
+        self->data.Init(dataPort)
+    :
+
+    fn Read(u8 bus,u8 device,u8 function,u8 offset)->u16:
+        u32 id = (1 << 31) | (bus << 16) | (device << 11) | (function << 8) | (offset & 252)
+        self->address.Write(id)
+
+        u32 data = self->data.Read()
+
+        return (data >> ((offset & 2) * 8)) & 65535 
+    :
+
+
+    fn Write(u8 bus,u8 device,u8 function,u8 offset,u32 data)->void:
+        u32 id = (1 << 31) | (bus << 16) | (device << 11) | (function << 8) | (offset & 252)
+        self->address.Write(id)
+        self->data.Write(data)
+    :
+
+    fn getPCIDevice(u8 bus,u8 device,u8 function)->PCIDevice:
+        PCIDevice pciDevice
+
+        pciDevice.bus      = bus
+        pciDevice.device   = device
+        pciDevice.function = function
+
+        
+        pciDevice.vendorId      = self->Read(bus,device,function,0)
+        pciDevice.deviceId      = self->Read(bus,device,function,2)
+        pciDevice.command       = self->Read(bus,device,function,4)
+        pciDevice.status        = self->Read(bus,device,function,6)
+        pciDevice.revisionId    = self->Read(bus,device,function,8) & 255
+        pciDevice.progIf        = (self->Read(bus,device,function,8) >> 8) & 255
+        pciDevice.subClassId    = self->Read(bus,device,function,10) & 255
+        pciDevice.classId       = (self->Read(bus,device,function,10) >> 8) & 255
+        pciDevice.cacheLineSize = self->Read(bus,device,function,12) & 255
+        pciDevice.latencyTimer  = (self->Read(bus,device,function,12) >> 8) & 255
+        pciDevice.headerType    = self->Read(bus,device,function,14) & 255
+        pciDevice.bist          = (self->Read(bus,device,function,14) >> 8) & 255
+
+        return pciDevice
+    :
+:
+
+
+
+
+
+
