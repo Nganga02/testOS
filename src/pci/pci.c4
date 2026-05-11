@@ -1,5 +1,6 @@
 use io::port as ports
 use serial::serial as serial
+use net::rtl8139 as rtl8139
 
 struct PCIDevice:
     u8 bus
@@ -45,6 +46,17 @@ impl PCIDevice:
 
 
 
+struct PCIIOBar:
+    u32 base
+:
+
+impl PCIIOBar:
+    fn Init(u32 base)->i32:
+        self->base = (base & ~3)
+
+        return base & 1
+    :
+:
 
 enum PCIPort:
     Address = 3320
@@ -72,6 +84,14 @@ impl PCI:
         return (data >> ((offset & 2) * 8)) & 65535 
     :
 
+    fn Read32(u8 bus,u8 device,u8 function,u8 offset)->u32:
+        u32 id = (1 << 31) | (bus << 16) | (device << 11) | (function << 8) | (offset & 252)
+        self->address.Write(id)
+
+        u32 data = self->data.Read()
+
+        return data
+    :
 
     fn Write(u8 bus,u8 device,u8 function,u8 offset,u32 data)->void:
         u32 id = (1 << 31) | (bus << 16) | (device << 11) | (function << 8) | (offset & 252)
@@ -101,6 +121,33 @@ impl PCI:
         pciDevice.bist          = (self->Read(bus,device,function,14) >> 8) & 255
 
         return pciDevice
+    :
+
+    fn getIOBar(u8 bus,u8 device,u8 function)->u32:
+
+        serial::Serial serialDriver
+        serialDriver.Init()
+        u32 ii = 0
+
+        while ii < 6:
+            u32 offset = 16 + (ii * 4)
+            u32 bar    = 0
+
+            bar = self->Read32(bus,device,function,offset)
+
+            PCIIOBar ioBar
+            if ioBar.Init(bar):
+                serialDriver.Write("Found I/O BAR  -> [")
+                serialDriver.WriteHex(ioBar.base)
+                serialDriver.Write("]\n")
+                return ioBar.base
+            :
+
+            ii += 1
+        :
+
+
+        return 0
     :
 
 
@@ -143,6 +190,13 @@ impl PCI:
 
                     if pciDevice.IsRTL8139() == 1:
                         serialDriver.Write("Found a Network Card :: RTL8139\n")
+                        u16 base = self->getIOBar(bus,device,function) as u16
+                        
+                        rtl8139::RTL8139 rtl8139Driver
+                        rtl8139Driver.Init(base)
+                        rtl8139Driver.PrintMacAddress()
+
+                        serialDriver.Write("Reading the Mac Address Complete\n")
                     :
 
                     function += 1

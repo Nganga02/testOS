@@ -94,6 +94,64 @@ impl Serial:
         return ii
     :
 
+
+    fn HexChar(u8 v)->char:
+        if v < 10:
+            return '0' + v
+        :
+
+        return 'a' + (v - 10)
+    :
+
+
+    fn WriteHex(u32 value)->void:
+        char [11]buffer
+
+        buffer[0] = '0'
+        buffer[1] = 'x'
+
+        u32 i = 0
+        while i < 8:
+            u8 nibble = (value >> (28 - i * 4)) & 15
+            buffer[2 + i] = self->HexChar(nibble)
+            i += 1
+        :
+
+        buffer[10] = 0
+
+        self->Write(buffer)
+    :
+
+    fn WriteHexByte(u32 value)->void:
+        char [9] buffer
+
+        u32 index   = 0
+        i32 started = 0
+        u32 i       = 0
+
+        while i < 8:
+            u8 shift  = (7 - i) * 4
+            u8 nibble = (value >> shift) & 15
+
+            if nibble != 0 || started:
+                started = 1
+                buffer[index] = self->HexChar(nibble)
+                index += 1
+            :
+
+            i += 1
+        :
+
+        if index == 0:
+            buffer[0] = '0'
+            index = 1
+        :
+
+        buffer[index] = 0
+
+        char *ptr = buffer
+        self->Write(ptr)
+    :
 :
 
 

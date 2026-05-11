@@ -1,0 +1,116 @@
+use io::port as ports
+use serial::serial as serial
+
+enum Register:
+    MacAddress0        = 0
+    MacAddress1        = 1
+    MacAddress2        = 2
+    MacAddress3        = 3
+    MacAddress4        = 4
+    MacAddress5        = 5
+    MulticastAddress   = 8
+    ReceiveBufferStart = 48
+    Command            = 55
+    PacketReadCursor   = 56
+    InterruptMask      = 60
+    InterruptStatus    = 62
+:
+
+
+struct RTL8139:
+    ports::Port8  macRegister0
+    ports::Port8  macRegister1
+    ports::Port8  macRegister2
+    ports::Port8  macRegister3
+    ports::Port8  macRegister4
+    ports::Port8  macRegister5
+
+    ports::Port8  commandRegister
+
+    ports::Port16 packetCursorRegister
+    ports::Port16 interruptMaskRegister
+    ports::Port16 interruptStatusRegister
+
+    ports::Port32 receiveBufferRegister
+:
+
+impl RTL8139:
+    fn Init(u16 ioBase)->void:
+        ports::Port8 macRegister0
+        ports::Port8 macRegister1
+        ports::Port8 macRegister2
+        ports::Port8 macRegister3
+        ports::Port8 macRegister4
+        ports::Port8 macRegister5
+        
+        ports::Port8 commandRegister
+        ports::Port16 packetCursorRegister
+        ports::Port16 interruptMaskRegister
+        ports::Port16 interruptStatusRegister
+        ports::Port32 receiveBufferRegister
+
+        macRegister0.Init(ioBase + Register::MacAddress0)
+        macRegister1.Init(ioBase + Register::MacAddress1)
+        macRegister2.Init(ioBase + Register::MacAddress2)
+        macRegister3.Init(ioBase + Register::MacAddress3)
+        macRegister4.Init(ioBase + Register::MacAddress4)
+        macRegister5.Init(ioBase + Register::MacAddress5)
+
+        commandRegister.Init(ioBase + Register::Command)
+        packetCursorRegister.Init(ioBase + Register::PacketReadCursor)
+        interruptMaskRegister.Init(ioBase + Register::InterruptMask)
+        interruptStatusRegister.Init(ioBase + Register::InterruptStatus)
+        receiveBufferRegister.Init(ioBase + Register::ReceiveBufferStart)
+
+        self->macRegister0 = macRegister0
+        self->macRegister1 = macRegister1
+        self->macRegister2 = macRegister2
+        self->macRegister3 = macRegister3
+        self->macRegister4 = macRegister4
+        self->macRegister5 = macRegister5
+
+        self->commandRegister         = commandRegister
+        self->packetCursorRegister    = packetCursorRegister
+        self->interruptMaskRegister   = interruptMaskRegister
+        self->interruptStatusRegister = interruptStatusRegister
+        self->receiveBufferRegister   = receiveBufferRegister
+    :
+
+
+    fn PrintMacAddress()->void:
+        u8 mac0 = self->macRegister0.Read()
+        u8 mac1 = self->macRegister1.Read()
+        u8 mac2 = self->macRegister2.Read()
+        u8 mac3 = self->macRegister3.Read()
+        u8 mac4 = self->macRegister4.Read()
+        u8 mac5 = self->macRegister5.Read()
+
+
+        serial::Serial serialDriver
+        serialDriver.Init()
+
+        serialDriver.WriteHexByte(mac0)
+        serialDriver.Write(":")
+
+        serialDriver.WriteHexByte(mac1)
+        serialDriver.Write(":")
+
+        serialDriver.WriteHexByte(mac2)
+        serialDriver.Write(":")
+
+        serialDriver.WriteHexByte(mac3)
+        serialDriver.Write(":")
+
+        serialDriver.WriteHexByte(mac4)
+        serialDriver.Write(":")
+
+        serialDriver.WriteHexByte(mac5)
+        serialDriver.Write(":\n\n")
+    :
+:
+
+
+
+
+
+

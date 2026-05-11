@@ -11,9 +11,9 @@ make clean
 qemu-system-x86_64 \
     kernel.bin \
     -netdev user,id=net0 \
-    -device pcnet,netdev=net0 \
+    -device pcnet,netdev=net0,mac=52:54:00:aa:bb:01 \
     -netdev user,id=net1 \
-    -device rtl8139,netdev=net1 \
+    -device rtl8139,netdev=net1,mac=12:34:56:78:aa:bb \
     -device usb-ehci,id=ehci \
     -device qemu-xhci,id=xhci \
     -nographic
