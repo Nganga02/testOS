@@ -1,0 +1,45 @@
+use thread::thread as thread
+use memory::memory as memory
+
+struct ThreadManager:
+    thread::Thread [10]threadList
+    u32 threadListLength
+    u32 activeThread
+    u32 currentThreadID
+:
+
+impl ThreadManager:
+    fn CreateThread(memory::VirtualAddress baseAddress)->void:
+        u32 threadID          = self->currentThreadID
+        self->currentThreadID += 1
+
+        thread::Thread thread
+        thread.Init(threadID,baseAddress)
+
+        self->threadList[self->threadListLength] = thread
+        self->threadListLength += 1
+    :
+
+
+    fn GetActiveThread()->thread::Thread:
+        return self->threadList[self->activeThread]
+    :
+
+    fn SetActiveThread(u32 activeThread)->void:
+        self->activeThread = activeThread
+    :
+:
+
+
+
+
+
+
+
+
+
+
+
+
+
+

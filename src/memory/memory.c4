@@ -1,0 +1,10 @@
+
+struct VirtualAddress:
+    u32 *base
+:
+
+impl VirtualAddress:
+    fn Init()->void:
+
+    :
+:

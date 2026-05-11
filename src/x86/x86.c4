@@ -1,0 +1,24 @@
+
+struct TrapFrame:
+    u32 eax
+    u32 ebx
+    u32 ecx
+    u32 edx
+    u32 edi
+    u32 esi
+    u32 ebp
+    u32 esp
+:
+
+impl TrapFrame:
+    fn Init()->void:
+        self->eax = 0
+        self->ebx = 0
+        self->ecx = 0
+        self->edx = 0
+        self->edi = 0
+        self->esi = 0
+        self->ebp = 0
+        self->esp = 0
+    :
+:

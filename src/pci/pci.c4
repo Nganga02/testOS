@@ -42,6 +42,7 @@ impl PCIDevice:
     fn IsUSBController()->i32:
         return (self->classId == 12) && (self->subClassId == 3)
     :
+
 :
 
 
@@ -123,6 +124,13 @@ impl PCI:
         return pciDevice
     :
 
+    fn SetBusMastering(u8 bus,u8 device,u8 function)->void:
+        u32 command = self->Read32(bus,device,function,4)
+        command     = command | 4
+
+        self->Write(bus,device,function,4,command)
+    :
+
     fn getIOBar(u8 bus,u8 device,u8 function)->u32:
 
         serial::Serial serialDriver
@@ -190,8 +198,10 @@ impl PCI:
 
                     if pciDevice.IsRTL8139() == 1:
                         serialDriver.Write("Found a Network Card :: RTL8139\n")
+                        self->SetBusMastering(bus,device,function)
                         u16 base = self->getIOBar(bus,device,function) as u16
-                        
+
+
                         rtl8139::RTL8139 rtl8139Driver
                         rtl8139Driver.Init(base)
                         rtl8139Driver.PrintMacAddress()

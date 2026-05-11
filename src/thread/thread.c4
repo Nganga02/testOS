@@ -1,0 +1,34 @@
+use memory::memory as memory
+use x86::x86 as x86
+
+enum State:
+    Ready
+    Running
+:
+
+struct Thread:
+    u32 threadID
+    State state
+    x86::TrapFrame frame
+    memory::VirtualAddress baseAddress
+:
+
+impl Thread:
+    fn Init(u32 threadID,memory::VirtualAddress baseAddress)->void:
+        x86::TrapFrame frame
+        frame.Init()
+
+        self->threadID    = threadID
+        self->state       = State::Ready
+        self->baseAddress = baseAddress
+        self->frame       = frame
+    :
+
+    fn SetState(State state)->void:
+        self->state = state
+    :
+
+    fn SetFrame(x86::TrapFrame frame)->void:
+        self->frame = frame
+    :
+:

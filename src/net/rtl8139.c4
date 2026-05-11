@@ -1,19 +1,48 @@
 use io::port as ports
 use serial::serial as serial
 
+enum ReceiveFilter:
+    AcceptAllPhysical    = (1 << 0)   // AAP
+    AcceptPhysMatch      = (1 << 1)   // APM
+    AcceptMulticast      = (1 << 2)   // AM
+    AcceptBroadcast      = (1 << 3)   // AB
+    MaxDMABurstUnlimited = (7 << 8)
+    Buffer8192           = (0 << 11)
+    Wrap                 = (1 << 7)    // Wrap Bit
+:
+
+
+
+
+enum ReceiveMode:
+    Promiscuous = (ReceiveFilter::AcceptAllPhysical | ReceiveFilter::AcceptPhysMatch | ReceiveFilter::AcceptMulticast | ReceiveFilter::AcceptBroadcast) | ReceiveFilter::MaxDMABurstUnlimited | ReceiveFilter::Buffer8192 | ReceiveFilter::Wrap
+    Default     = (ReceiveFilter::AcceptPhysMatch   | ReceiveFilter::AcceptMulticast | ReceiveFilter::AcceptBroadcast)
+:
+
+
+
+enum CommandRegister:
+    BufferEmpty    = (1 << 0)
+    EnableReceive  = (1 << 2)
+    EnableTransmit = (1 << 3)
+    Reset          = (1 << 4)
+:
+
 enum Register:
-    MacAddress0        = 0
-    MacAddress1        = 1
-    MacAddress2        = 2
-    MacAddress3        = 3
-    MacAddress4        = 4
-    MacAddress5        = 5
-    MulticastAddress   = 8
-    ReceiveBufferStart = 48
-    Command            = 55
-    PacketReadCursor   = 56
-    InterruptMask      = 60
-    InterruptStatus    = 62
+    MacAddress0          = 0
+    MacAddress1          = 1
+    MacAddress2          = 2
+    MacAddress3          = 3
+    MacAddress4          = 4
+    MacAddress5          = 5
+    MulticastAddress     = 8
+    ReceiveBufferStart   = 48
+    Command              = 55
+    PacketReadCursor     = 56
+    InterruptMask        = 60
+    InterruptStatus      = 62
+    ReceiveConfiguration = 68
+    Configuration1       = 82 
 :
 
 
@@ -32,6 +61,9 @@ struct RTL8139:
     ports::Port16 interruptStatusRegister
 
     ports::Port32 receiveBufferRegister
+    ports::Port32 receiveConfigurationRegister
+
+    ports::Port8 configurationRegister1
 :
 
 impl RTL8139:
@@ -47,7 +79,11 @@ impl RTL8139:
         ports::Port16 packetCursorRegister
         ports::Port16 interruptMaskRegister
         ports::Port16 interruptStatusRegister
+
         ports::Port32 receiveBufferRegister
+        ports::Port32 receiveConfigurationRegister
+
+        ports::Port8 configurationRegister1
 
         macRegister0.Init(ioBase + Register::MacAddress0)
         macRegister1.Init(ioBase + Register::MacAddress1)
@@ -60,7 +96,11 @@ impl RTL8139:
         packetCursorRegister.Init(ioBase + Register::PacketReadCursor)
         interruptMaskRegister.Init(ioBase + Register::InterruptMask)
         interruptStatusRegister.Init(ioBase + Register::InterruptStatus)
+
         receiveBufferRegister.Init(ioBase + Register::ReceiveBufferStart)
+        receiveConfigurationRegister.Init(ioBase + Register::ReceiveConfiguration)
+
+        configurationRegister1.Init(ioBase + Register::Configuration1)
 
         self->macRegister0 = macRegister0
         self->macRegister1 = macRegister1
@@ -69,12 +109,57 @@ impl RTL8139:
         self->macRegister4 = macRegister4
         self->macRegister5 = macRegister5
 
-        self->commandRegister         = commandRegister
-        self->packetCursorRegister    = packetCursorRegister
-        self->interruptMaskRegister   = interruptMaskRegister
-        self->interruptStatusRegister = interruptStatusRegister
-        self->receiveBufferRegister   = receiveBufferRegister
+        self->commandRegister                = commandRegister
+        self->packetCursorRegister           = packetCursorRegister
+        self->interruptMaskRegister          = interruptMaskRegister
+        self->interruptStatusRegister        = interruptStatusRegister
+        
+        self->receiveBufferRegister          = receiveBufferRegister
+        self->receiveConfigurationRegister   = receiveConfigurationRegister
+
+        self->configurationRegister1         = configurationRegister1
+
+        //char *buffer = (1024 * 1024) as char *
+
+        char [8192 + 16 + 1500]buffer
+
+        self->PowerOn()
+        self->Reset()
+        self->SetReceiveBuffer(buffer as u32)
+        self->SetReceiveMode(ReceiveMode::Promiscuous)
+        self->EnableReceiveAndTransmit()
+
+
+        serial::Serial serialDriver
+        serialDriver.Init()
+
+        serialDriver.Write("RTL8139 Initialization complete!!! \n")
     :
+
+    fn PowerOn()->void:
+        self->configurationRegister1.Write(0)
+    :
+
+    fn Reset()->void:
+        self->commandRegister.Write(16)
+
+        while (self->commandRegister.Read() & 16) != 0:
+            // wait for reset to complete
+        :
+    :
+
+    fn SetReceiveBuffer(u32 buffer)->void:
+        self->receiveBufferRegister.Write(buffer)
+    :
+
+    fn SetReceiveMode(ReceiveMode mode)->void:
+        self->receiveConfigurationRegister.Write(mode)
+    :
+
+    fn EnableReceiveAndTransmit()->void:
+        self->commandRegister.Write(CommandRegister::EnableReceive | CommandRegister::EnableTransmit)
+    :
+
 
 
     fn PrintMacAddress()->void:
@@ -88,6 +173,8 @@ impl RTL8139:
 
         serial::Serial serialDriver
         serialDriver.Init()
+
+        serialDriver.Write("MAC Address =>  ")
 
         serialDriver.WriteHexByte(mac0)
         serialDriver.Write(":")
