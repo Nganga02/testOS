@@ -1,10 +1,10 @@
 struct EthernetHeader:
-    u8 destination    [ETH_ALEN]
-    u8 source         [ETH_ALEN]
+    u8 [address]destination
+    u8 [address]source
     u16 protocol
 :
 
-enum Lengths:
+enum Constant:
     Address = 6
     Type   = 2
     Fcs     = 4
@@ -32,11 +32,11 @@ impl EthernetHeader:
         return self->source
     :
 
-    fn set_type(int type)->void:
+    fn SetType(int type)->void:
         self->protocol = htons(type)
     :
 
-    fn get_proto()->u16:
+    fn GetProto()->u16:
         return self->protocol
     :
 :
