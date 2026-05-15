@@ -1,14 +1,14 @@
 struct EthernetHeader:
-    u8 [address]destination
-    u8 [address]source
+    u8 [Constant::AddressLength]destination
+    u8 [Constant::AddressLength]source
     u16 protocol
 :
 
 enum Constant:
-    Address = 6
-    Type   = 2
-    Fcs     = 4
-    Header  = 14
+    AddressLength = 6
+    TypeLength   = 2
+    FcsLength     = 4
+    HeaderLength  = 14
 :
 
 fn htons(u16 type)->u16:
