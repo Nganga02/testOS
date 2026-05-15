@@ -1,7 +1,7 @@
 struct EthernetHeader:
-    u8 h_destination    [ETH_ALEN]
-    u8 h_source         [ETH_ALEN]
-    u16 h_proto
+    u8 destination    [ETH_ALEN]
+    u8 source         [ETH_ALEN]
+    u16 protocol
 :
 
 enum Lengths:
@@ -17,27 +17,27 @@ fn htons(u16 type)->u16:
 
 impl EthernetHeader:
     fn SetDestinationAddress(char *dest_addr)->void:
-        self->h_destination = dest_addr
+        self->destination = dest_addr
     :
 
     fn GetDestination()->char*:
-        return self->h_destination
+        return self->destination
     :
 
     fn SetSourceAddress(char *source_addr)->void:
-        self->s_source = source_addr
+        self->source = source_addr
     :
 
     fn GetSource()->char *:
-        return self->h_source
+        return self->source
     :
 
     fn set_type(int type)->void:
-        self->proto = htons(type)
+        self->protocol = htons(type)
     :
 
     fn get_proto()->u16:
-        return self->h_proto
+        return self->protocol
     :
 :
 
