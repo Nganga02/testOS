@@ -1,57 +1,39 @@
-foreign "C":
-    fn htons(u32 type)
-:
-
-
-fn Htons(u32 type):
-    return htons(type);
-:
-
-
-
-cosnt enum
-//BYTE ADDRESSABLE
-const int ETH_ALEN = 6
-const int ETH_TLEN = 2  
-const int ETH_FCS  = 4
-const int ETH_HLEN = 14
-
-
-struct Ethhdr:
-    unsigned char h_dest    [ETH_ALEN]
-    unsigned char h_source  [ETH_ALEN]
+struct EthernetHeader:
+    u8 h_destination    [ETH_ALEN]
+    u8 h_source         [ETH_ALEN]
     u16 h_proto
 :
 
+enum Lengths:
+    Address = 6
+    Type   = 2
+    Fcs     = 4
+    Header  = 14
+:
 
+fn htons(u16 type)->u16:
+    return (type >> 8) | (type << 8)
+:
 
-//we should convert host endianness to network endianness
-
-
-
-
-
-
-
-impl Ethhdr:
-    fn set_daddr(char *dest_addr)->void:
-        self->h_dest = dest_addr
+impl EthernetHeader:
+    fn SetDestinationAddress(char *dest_addr)->void:
+        self->h_destination = dest_addr
     :
 
-    fn get_dest()->char*:
-        return self->h_dest
+    fn GetDestination()->char*:
+        return self->h_destination
     :
 
-    fn set_saddr(char *source_addr)->void:
+    fn SetSourceAddress(char *source_addr)->void:
         self->s_source = source_addr
     :
 
-    fn get_source()->char *:
+    fn GetSource()->char *:
         return self->h_source
     :
 
     fn set_type(int type)->void:
-        self->proto = Htons(type)
+        self->proto = htons(type)
     :
 
     fn get_proto()->u16:
