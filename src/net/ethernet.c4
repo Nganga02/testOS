@@ -1,42 +1,55 @@
+
+enum Constant:
+    AddressLength = 6
+    TypeLength    = 2
+    FcsLength     = 4
+    HeaderLength  = 14
+:
+
+
 struct EthernetHeader:
     u8 [Constant::AddressLength]destination
     u8 [Constant::AddressLength]source
     u16 protocol
 :
 
-enum Constant:
-    AddressLength = 6
-    TypeLength   = 2
-    FcsLength     = 4
-    HeaderLength  = 14
-:
 
-fn htons(u16 type)->u16:
-    return (type >> 8) | (type << 8)
+fn Htons(u16 data)->u16:
+    return (data >> 8) | (data << 8)
 :
 
 impl EthernetHeader:
-    fn SetDestinationAddress(char *dest_addr)->void:
-        self->destination = dest_addr
+    fn SetDestination(str destination)->void:
+        self->destination[0] = destination[0]
+        self->destination[1] = destination[1]
+        self->destination[2] = destination[2]
+        self->destination[3] = destination[3]
+        self->destination[4] = destination[4]
+        self->destination[5] = destination[5]
     :
 
-    fn GetDestination()->char*:
+    fn GetDestination()->str :
         return self->destination
     :
 
-    fn SetSourceAddress(char *source_addr)->void:
-        self->source = source_addr
+    fn SetSource(str source)->void:
+        self->source[0] = source[0]
+        self->source[1] = source[1]
+        self->source[2] = source[2]
+        self->source[3] = source[3]
+        self->source[4] = source[4]
+        self->source[5] = source[5]
     :
 
-    fn GetSource()->char *:
+    fn GetSource()->str :
         return self->source
     :
 
-    fn SetType(int type)->void:
-        self->protocol = htons(type)
+    fn SetProtocol(i32 protocol)->void:
+        self->protocol = Htons(protocol)
     :
 
-    fn GetProto()->u16:
+    fn GetProtocol()->u16:
         return self->protocol
     :
 :

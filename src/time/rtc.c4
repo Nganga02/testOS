@@ -1,0 +1,38 @@
+
+use io::port as ports
+
+enum Register:
+    Config = 112
+    Data   = 113
+:
+
+struct RTC:
+    ports::Port8 configRegister
+    ports::Port8 dataRegister
+:
+
+impl RTC:
+    fn Init()->void:
+        ports::Port8 configRegister
+        ports::Port8 dataRegister
+
+        configRegister.Init(Register::Config)
+        dataRegister.Init(Register::Data)
+
+        self->configRegister = configRegister
+        self->dataRegister   = dataRegister
+    :
+
+    fn EnableNMI()->void:
+        u32 value = (self->configRegister.Read() & 127)
+        self->configRegister.Write(value)
+        self->dataRegister.Read()
+    :
+
+
+    fn DisableNMI()->void:
+        u32 value = (self->configRegister.Read() | 128)
+        self->configRegister.Write(value)
+        self->dataRegister.Read()
+    :
+:

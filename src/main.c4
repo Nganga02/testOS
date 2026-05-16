@@ -14,7 +14,7 @@ pub fn main()->i32:
     vg::Vga vga
     vga.Set(753664 as char *,colorCode)
     vga.Print(" - VGA - is a go !!!!!!!!")
-    vga.Print(" Writing a Network Stack Now!!!!!!!!")
+    vga.Print("----> Writing a Network Stack Now!!!!!!!!")
 
     serial::Serial serialDriver
     serialDriver.Init()
