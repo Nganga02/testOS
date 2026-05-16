@@ -28,8 +28,8 @@ impl EthernetHeader:
         self->destination[5] = destination[5]
     :
 
-    fn GetDestination()->str :
-        return self->destination
+    fn GetDestination()->str:
+        return self->destination as str // cast from u8 array to str
     :
 
     fn SetSource(str source)->void:
@@ -41,12 +41,12 @@ impl EthernetHeader:
         self->source[5] = source[5]
     :
 
-    fn GetSource()->str :
-        return self->source
+    fn GetSource()->str:
+        return self->source as str
     :
 
-    fn SetProtocol(i32 protocol)->void:
-        self->protocol = Htons(protocol)
+    fn SetProtocol(u16 protocol)->void:
+        self->protocol = Htons(protocol) 
     :
 
     fn GetProtocol()->u16:
