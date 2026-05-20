@@ -19,6 +19,7 @@ bootloader:
 	call disable_interrupts
 	cld	
 
+
 	xor ax,ax
 	mov ds,ax
 	mov es,ax
@@ -26,6 +27,10 @@ bootloader:
 	mov gs,ax
 	mov ss,ax
 	mov sp,0x7c00
+
+    ;mov si,txt
+    ;call print
+    ;jmp $
 
 	call set_video_mode
 	call switch_to_pm
