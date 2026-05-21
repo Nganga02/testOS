@@ -38,7 +38,7 @@ impl ARPHeader:
     :
 
     fn SetHardwareLength(u8 length):
-        self->HardwareType = type
+        self->HardwareType = length
     :
 
     fn GetHardwareLength()->u8:
@@ -46,7 +46,7 @@ impl ARPHeader:
     :
 
     fn SetProtocolLength(u8 length):
-        self->ProtocolLength = type
+        self->ProtocolLength = length
     :
 
     fn GetProtocolLength()->u8:
@@ -74,20 +74,20 @@ struct EthernetARPHeader:
 
 impl EthernetARPHeader:
     fn SetArpHeader(struct ARPHeader *arpHeader):
-        u16 hostHardwareType = arpHeader.GetHardwareType()
+        u16 hostHardwareType = arpHeader->GetHardwareType()
         self->ArpHeader.SetHardwareType(Htons(hostHardwareType))
 
-        u16 hostProtocolType = arpHeader.GetProtocolType()
+        u16 hostProtocolType = arpHeader->GetProtocolType()
         self->ArpHeader.SetProtocolType(Htons(hostProtocolType))
 
-         u16 hostHardwareLength = arpHeader.GetHardwareLength()
+         u16 hostHardwareLength = arpHeader->GetHardwareLength()
         self->ArpHeader.SetHardwareLength(hostHardwareLength)
 
-         u16 hostProtocolLength = arpHeader.GetProtocolLength()
+         u16 hostProtocolLength = arpHeader->GetProtocolLength()
         self->ArpHeader.SetProtocolLength(hostProtocolLength)
 
-         u16 hostOperationType = arpHeader.GetOperationType()
-        self->ArpHeader.SetOperationTYpe(Htons(hostOperationType))
+         u16 hostOperationType = arpHeader->GetOperationType()
+        self->ArpHeader.SetOperationType(Htons(hostOperationType))
     :
 
     fn GetArpHeader() -> struct ARPHeader:
