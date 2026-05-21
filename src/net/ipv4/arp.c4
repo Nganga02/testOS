@@ -128,6 +128,7 @@ impl EthernetARPHeader:
         HardwareAddress[3] = self->SenderHardwareAddress[3]
         HardwareAddress[4] = self->SenderHardwareAddress[4]
         HardwareAddress[5] = self->SenderHardwareAddress[5]
+        return hardwareAddress
     :
 
     fn SetSenderProtocolAddress(str protocolAddress):
@@ -138,11 +139,12 @@ impl EthernetARPHeader:
     :
 
     fn GetSenderProtocolAddress()->str:
-        str hardwareAddress
+        str protocolAddress
         HardwareAddress[0] = self->SenderHardwareAddress[0]
         HardwareAddress[1] = self->SenderHardwareAddress[1]
         HardwareAddress[2] = self->SenderHardwareAddress[2]
         HardwareAddress[3] = self->SenderHardwareAddress[3]
+        return protocolAddress
     :
 
     fn SetTargetHardwareAddress(str hardwareAddress):
@@ -162,6 +164,7 @@ impl EthernetARPHeader:
         HardwareAddress[3] = self->TargetHardwareAddress[3]
         HardwareAddress[4] = self->TargetHardwareAddress[4]
         HardwareAddress[5] = self->TargetHardwareAddress[5]
+        return hardwareAddress
     :
 
     fn SetTargetProtocolAddress(str hardwareAddress):
@@ -172,10 +175,11 @@ impl EthernetARPHeader:
     :
 
     fn GetTargetProtocolAddress()->str:
-        str hardwareAddress
+        str protocolAddress
         HardwareAddress[0] = self->TargetProtocolAddress[0]
         HardwareAddress[1] = self->TargetProtocolAddress[1]
         HardwareAddress[2] = self->TargetProtocolAddress[2]
         HardwareAddress[3] = self->TargetProtocolAddress[3]
+        return protocolAddress
     :
 :
