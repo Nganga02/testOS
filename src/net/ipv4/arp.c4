@@ -25,7 +25,7 @@ impl ARPHeader:
         self->HardwareType = type
     :
 
-    fn GetHardwareType(u16 type):
+    fn GetHardwareType()->u16:
         return self->HardwareType
     :
 
@@ -33,7 +33,7 @@ impl ARPHeader:
         self->ProtocolType = type
     :
 
-    fn GetProtocolType(u16 type):
+    fn GetProtocolType()->u16:
         return self->ProtocolType
     :
 
@@ -41,7 +41,7 @@ impl ARPHeader:
         self->HardwareType = type
     :
 
-    fn GetHardwareLength(u8 length)->u8:
+    fn GetHardwareLength()->u8:
         return self->HardwareType
     :
 
@@ -49,7 +49,7 @@ impl ARPHeader:
         self->ProtocolLength = type
     :
 
-    fn GetProtocolLength(u8 length):
+    fn GetProtocolLength()->u8:
         return self->ProtocolLength
     :
 
@@ -57,7 +57,7 @@ impl ARPHeader:
         self->OperationType = type
     :
 
-    fn GetOperationType(u16 type):
+    fn GetOperationType()->u16:
         return self->OperationType
     :
 :   
@@ -74,19 +74,108 @@ struct EthernetARPHeader:
 
 impl EthernetARPHeader:
     fn SetArpHeader(struct ARPHeader *arpHeader):
-        u16 hostHardwareType = (as u8 *)arpHeader@offset(2)@read()
-        self->ArpHeader.SetArpHeader(Htons(hostHardwareType))
+        u16 hostHardwareType = arpHeader.GetHardwareType()
+        self->ArpHeader.SetHardwareType(Htons(hostHardwareType))
 
-        u16 hostProtocolType = arpHeader@offset(2)@read()
+        u16 hostProtocolType = arpHeader.GetProtocolType()
         self->ArpHeader.SetProtocolType(Htons(hostProtocolType))
 
-         u16 hostHardwareLength = arpHeader@offset(1)@read()
+         u16 hostHardwareLength = arpHeader.GetHardwareLength()
         self->ArpHeader.SetHardwareLength(hostHardwareLength)
 
-         u16 hostProtocolLength = arpHeader@offset(1)@read()
-        self->ArpHeader.SetProtocolLength(Htons(hostProtocolLength))
+         u16 hostProtocolLength = arpHeader.GetProtocolLength()
+        self->ArpHeader.SetProtocolLength(hostProtocolLength)
 
-         u16 hostOperationType = arpHeader@offset(2)@read()
-        self->ArpHeader.SetOperationTYpe(Htons(hostProtocolType))
+         u16 hostOperationType = arpHeader.GetOperationType()
+        self->ArpHeader.SetOperationTYpe(Htons(hostOperationType))
     :
 
+    fn GetArpHeader() -> struct ARPHeader:
+        struct ARPHeader arpHeader
+
+        u16 networkHardwareType = self->ArpHeader.GetHardwareType()
+        arpHeader.SetHardwareType(Ntohs(networkHardwareType))
+
+        u16 networkProtocolType =self->ArpHeader.GetProtocolType()
+        arpHeader.SetProtocolType(Ntohs(networkProtocolType))
+
+        u8 networkHardwareLength = self->ArpHeader.GetHardwareLength()
+        arpHeader.SetHardwareLength(networkHardwareLength)
+
+        u8 networkProtocolLength = self->ArpHeader.GetProtocolLength()
+        arpHeader.SetProtocolLength(networkProtocolLength)
+
+        u16 networkOperationType = self->ArpHeader.GetOperationType()
+        arpHeader.SetOperationType(Ntohs(networkOperationType))
+
+        return arpHeader
+    :
+
+    fn SetSenderHardwareAddress(str hardwareAddress):
+        self->SenderHardwareAddress[0] = HardwareAddress[0]
+        self->SenderHardwareAddress[1] = HardwareAddress[1]
+        self->SenderHardwareAddress[2] = HardwareAddress[2]
+        self->SenderHardwareAddress[3] = HardwareAddress[3]
+        self->SenderHardwareAddress[4] = HardwareAddress[4]
+        self->SenderHardwareAddress[5] = HardwareAddress[5]
+    :
+
+    fn GetSenderHardwareAddress()->str:
+        str hardwareAddress
+        HardwareAddress[0] = self->SenderHardwareAddress[0]
+        HardwareAddress[1] = self->SenderHardwareAddress[1]
+        HardwareAddress[2] = self->SenderHardwareAddress[2]
+        HardwareAddress[3] = self->SenderHardwareAddress[3]
+        HardwareAddress[4] = self->SenderHardwareAddress[4]
+        HardwareAddress[5] = self->SenderHardwareAddress[5]
+    :
+
+    fn SetSenderProtocolAddress(str protocolAddress):
+        self->SenderProtocolAddress[0] = ProtocolAddress[0]
+        self->SenderProtocolAddress[1] = ProtocolAddress[1]
+        self->SenderProtocolAddress[2] = ProtocolAddress[2]
+        self->SenderProtocolAddress[3] = ProtocolAddress[3]
+    :
+
+    fn GetSenderProtocolAddress()->str:
+        str hardwareAddress
+        HardwareAddress[0] = self->SenderHardwareAddress[0]
+        HardwareAddress[1] = self->SenderHardwareAddress[1]
+        HardwareAddress[2] = self->SenderHardwareAddress[2]
+        HardwareAddress[3] = self->SenderHardwareAddress[3]
+    :
+
+    fn SetTargetHardwareAddress(str hardwareAddress):
+        self->TargetHardwareAddress[0] = HardwareAddress[0]
+        self->TargetHardwareAddress[1] = HardwareAddress[1]
+        self->TargetHardwareAddress[2] = HardwareAddress[2]
+        self->TargetHardwareAddress[3] = HardwareAddress[3]
+        self->TargetHardwareAddress[4] = HardwareAddress[4]
+        self->TargetHardwareAddress[5] = HardwareAddress[5]
+    :
+
+    fn GetTargetHardwareAddress()->str:
+        str hardwareAddress
+        HardwareAddress[0] = self->TargetHardwareAddress[0]
+        HardwareAddress[1] = self->TargetHardwareAddress[1]
+        HardwareAddress[2] = self->TargetHardwareAddress[2]
+        HardwareAddress[3] = self->TargetHardwareAddress[3]
+        HardwareAddress[4] = self->TargetHardwareAddress[4]
+        HardwareAddress[5] = self->TargetHardwareAddress[5]
+    :
+
+    fn SetTargetProtocolAddress(str hardwareAddress):
+        self->TargetProtocolAddress[0] = HardwareAddress[0]
+        self->TargetProtocolAddress[1] = HardwareAddress[1]
+        self->TargetProtocolAddress[2] = HardwareAddress[2]
+        self->TargetProtocolAddress[3] = HardwareAddress[3]
+    :
+
+    fn GetTargetProtocolAddress()->str:
+        str hardwareAddress
+        HardwareAddress[0] = self->TargetProtocolAddress[0]
+        HardwareAddress[1] = self->TargetProtocolAddress[1]
+        HardwareAddress[2] = self->TargetProtocolAddress[2]
+        HardwareAddress[3] = self->TargetProtocolAddress[3]
+    :
+:
