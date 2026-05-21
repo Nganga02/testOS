@@ -80,13 +80,13 @@ impl EthernetARPHeader:
         u16 hostProtocolType = arpHeader->GetProtocolType()
         self->ArpHeader.SetProtocolType(Htons(hostProtocolType))
 
-         u16 hostHardwareLength = arpHeader->GetHardwareLength()
+        u16 hostHardwareLength = arpHeader->GetHardwareLength()
         self->ArpHeader.SetHardwareLength(hostHardwareLength)
 
-         u16 hostProtocolLength = arpHeader->GetProtocolLength()
+        u16 hostProtocolLength = arpHeader->GetProtocolLength()
         self->ArpHeader.SetProtocolLength(hostProtocolLength)
 
-         u16 hostOperationType = arpHeader->GetOperationType()
+        u16 hostOperationType = arpHeader->GetOperationType()
         self->ArpHeader.SetOperationType(Htons(hostOperationType))
     :
 
@@ -111,6 +111,8 @@ impl EthernetARPHeader:
         return arpHeader
     :
 
+
+    //Setter and Getter for the Sender Hardware Address
     fn SetSenderHardwareAddress(str hardwareAddress):
         self->SenderHardwareAddress[0] = HardwareAddress[0]
         self->SenderHardwareAddress[1] = HardwareAddress[1]
@@ -131,6 +133,8 @@ impl EthernetARPHeader:
         return hardwareAddress
     :
 
+
+    //Setter and Getter for the Sender Protocol Address
     fn SetSenderProtocolAddress(str protocolAddress):
         self->SenderProtocolAddress[0] = ProtocolAddress[0]
         self->SenderProtocolAddress[1] = ProtocolAddress[1]
@@ -140,13 +144,15 @@ impl EthernetARPHeader:
 
     fn GetSenderProtocolAddress()->str:
         str protocolAddress
-        HardwareAddress[0] = self->SenderHardwareAddress[0]
-        HardwareAddress[1] = self->SenderHardwareAddress[1]
-        HardwareAddress[2] = self->SenderHardwareAddress[2]
-        HardwareAddress[3] = self->SenderHardwareAddress[3]
+        protocolAddress[0] = self->SenderProtocolAddress[0]
+        protocolAddress[1] = self->SenderProtocolAddress[1]
+        protocolAddress[2] = self->SenderProtocolAddress[2]
+        protocolAddress[3] = self->SenderProtocolAddress[3]
         return protocolAddress
     :
 
+
+    //Setter and Getter for the Target Hardware Address
     fn SetTargetHardwareAddress(str hardwareAddress):
         self->TargetHardwareAddress[0] = HardwareAddress[0]
         self->TargetHardwareAddress[1] = HardwareAddress[1]
@@ -167,19 +173,21 @@ impl EthernetARPHeader:
         return hardwareAddress
     :
 
-    fn SetTargetProtocolAddress(str hardwareAddress):
-        self->TargetProtocolAddress[0] = HardwareAddress[0]
-        self->TargetProtocolAddress[1] = HardwareAddress[1]
-        self->TargetProtocolAddress[2] = HardwareAddress[2]
-        self->TargetProtocolAddress[3] = HardwareAddress[3]
+
+    //Setter and Getter for the Target protocol Address
+    fn SetTargetProtocolAddress(str protocolAddress):
+        self->TargetProtocolAddress[0] = protocolAddress[0]
+        self->TargetProtocolAddress[1] = protocolAddress[1]
+        self->TargetProtocolAddress[2] = protocolAddress[2]
+        self->TargetProtocolAddress[3] = protocolAddress[3]
     :
 
     fn GetTargetProtocolAddress()->str:
         str protocolAddress
-        HardwareAddress[0] = self->TargetProtocolAddress[0]
-        HardwareAddress[1] = self->TargetProtocolAddress[1]
-        HardwareAddress[2] = self->TargetProtocolAddress[2]
-        HardwareAddress[3] = self->TargetProtocolAddress[3]
+        protocolAddress[0] = self->TargetProtocolAddress[0]
+        protocolAddress[1] = self->TargetProtocolAddress[1]
+        protocolAddress[2] = self->TargetProtocolAddress[2]
+        protocolAddress[3] = self->TargetProtocolAddress[3]
         return protocolAddress
     :
 :
