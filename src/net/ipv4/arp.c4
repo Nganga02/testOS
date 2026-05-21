@@ -1,0 +1,92 @@
+enum ArpConstant:
+    ProtocolAddressLength = 4
+    HardwareAddressLength = 6
+:
+
+
+struct ARPHeader:
+    u16 HardwareType
+    u16 ProtocolType 
+    u8 HardwareLength
+    u8 ProtocolLength
+    u16 OperationType   
+:
+
+fn Htons(u16 data)->u16:
+    return (data >> 8) | (data << 8)
+:
+
+fn Ntohs(u16 data)-u16:
+    return Htons(data)
+:
+
+impl ARPHeader:
+    fn SetHardwareType(u16 type):
+        self->HardwareType = type
+    :
+
+    fn GetHardwareType(u16 type):
+        return self->HardwareType
+    :
+
+    fn SetProtocolType(u16 type):
+        self->ProtocolType = type
+    :
+
+    fn GetProtocolType(u16 type):
+        return self->ProtocolType
+    :
+
+    fn SetHardwareLength(u8 length):
+        self->HardwareType = type
+    :
+
+    fn GetHardwareLength(u8 length)->u8:
+        return self->HardwareType
+    :
+
+    fn SetProtocolLength(u8 length):
+        self->ProtocolLength = type
+    :
+
+    fn GetProtocolLength(u8 length):
+        return self->ProtocolLength
+    :
+
+    fn SetOperationType(u16 type):
+        self->OperationType = type
+    :
+
+    fn GetOperationType(u16 type):
+        return self->OperationType
+    :
+:   
+
+
+struct EthernetARPHeader:
+    struct ARPHeader ArpHeader
+    u8 [ArpConstant::HardwareAddressLength]SenderHardwareAddress
+    u8 [ArpConstant::ProtocolAddressLength]SenderProtocolAddress
+    u8 [ArpConstant::HardwareAddressLength]TargetHardwareAddress
+    u8 [ArpConstant::ProtocolAddressLength]TargetProtocolAddress
+:
+
+
+impl EthernetARPHeader:
+    fn SetArpHeader(struct ARPHeader *arpHeader):
+        u16 hostHardwareType = (as u8 *)arpHeader@offset(2)@read()
+        self->ArpHeader.SetArpHeader(Htons(hostHardwareType))
+
+        u16 hostProtocolType = arpHeader@offset(2)@read()
+        self->ArpHeader.SetProtocolType(Htons(hostProtocolType))
+
+         u16 hostHardwareLength = arpHeader@offset(1)@read()
+        self->ArpHeader.SetHardwareLength(hostHardwareLength)
+
+         u16 hostProtocolLength = arpHeader@offset(1)@read()
+        self->ArpHeader.SetProtocolLength(Htons(hostProtocolLength))
+
+         u16 hostOperationType = arpHeader@offset(2)@read()
+        self->ArpHeader.SetOperationTYpe(Htons(hostProtocolType))
+    :
+
