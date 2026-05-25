@@ -1,0 +1,18 @@
+
+foreign "C":
+    fn enable_paging()->void
+:
+
+struct MMU:
+    u32 pageDirectory // dummy variable
+:
+
+impl MMU:
+    fn Init()->void:
+        self->pageDirectory = 0
+    :
+
+    fn EnablePaging()->void:
+        enable_paging()
+    :
+:

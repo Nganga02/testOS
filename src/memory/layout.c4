@@ -1,0 +1,51 @@
+struct Layout:
+    u32 size
+    u32 alignment
+:
+
+impl Layout:
+    fn Init(u32 size,u32 alignment)->void:
+        self->size      = size
+        self->alignment = alignment
+
+        self->Align()
+    :
+
+
+    fn CheckedAdd(u32 *result,u32 a,u32 b)->u32:
+        const u32 U32_MAX = 4294967296 as u32
+
+        if a > U32_MAX - b:
+            return 0
+        :
+
+        result@write(a + b)
+        return 1
+    :
+
+    fn IsPowerOfTwo()->u32:
+        return (self->alignment != 0) and ((self->alignment & (self->alignment - 1)) == 0)
+    :
+
+
+    fn Align()->u32:
+        if not self->IsPowerOfTwo():
+            return 0
+        :
+
+        u32 mask  = self->alignment - 1
+        u32 added = 0
+
+        if not self->CheckedAdd(&added,self->size,mask):
+            return 0
+        :
+
+        self->size = added & ~mask
+
+        return 1
+    :
+:
+
+
+
+

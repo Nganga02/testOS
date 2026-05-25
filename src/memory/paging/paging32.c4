@@ -1,0 +1,17 @@
+
+enum EntryFlag:
+    Present       = 1
+    Writable      = 2
+    AccessFromAll = 4
+    WriteThrough  = 8
+    CacheDisabled = 16
+:
+
+
+
+struct Entry:
+    u32 data // 4k aligned address[:20] | avail[:3] | G | S | 0 | A | D | W | U | R | P 
+:
+
+
+

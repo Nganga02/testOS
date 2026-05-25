@@ -1,0 +1,5 @@
+use io::port as ports
+
+struct ATA:
+    i32 data    
+:

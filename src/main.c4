@@ -3,8 +3,25 @@ use vga::vga as vg
 use serial::serial as serial
 use pci::pci as pci
 use std::io as io
+use cmos::rtc as rtc
+use memory::mmu as mmu
+use memory::allocator::boot as bootAlloc
+use panic as panic
+use rangeSet::rangeSet as rangeSet
+use bootInfo as bInfo
 
-pub fn main()->i32:
+fn Memcpy(char *dst,char *src,u32 size)->void:
+    u64 ii = 0
+
+    while ii < size:
+        dst[ii] = src[ii]
+        ii     += 1
+    :
+:
+
+
+pub fn main(bInfo::BootInfo *bootInfo)->i32:
+
     vg::Color foregroundColor = vg::Color::Magenta
     vg::Color backgroundColor = vg::Color::Black
  
@@ -23,10 +40,54 @@ pub fn main()->i32:
     serialDriver.Write("-> More Logging !!\n")
     serialDriver.Write("-> More Logging 2.0 !!\n")
 
+    serialDriver.WriteHex(bootInfo->count)
+    serialDriver.Write("[ !!  ]\n")
+
+    u32 ii = 0
+
+    while ii < bootInfo->count:
+        rangeSet::Range range = bootInfo->ranges[ii]
+        serialDriver.Write("range.start  => ")
+        serialDriver.WriteHex(range.start)
+        serialDriver.Write(" : range.end  => ")
+        serialDriver.WriteHex(range.end)
+        serialDriver.Write("[ !!  ]\n")
+
+        ii += 1
+    :
+
+
+    bootAlloc::Init(bootInfo)
+
+    u32 totalRAM = bootAlloc::GetTotalRAM()
+
+    serialDriver.Write("\n[*] Total System RAM is => ")
+    serialDriver.WriteHex(totalRAM)
+    serialDriver.Write("\n")
+
+
+    char *string = bootAlloc::Kmalloc(10,2)
+
+    if string == 0:
+        serialDriver.WriteHex(string as u32)
+        panic::Panic("  Boot Allocator Failed")
+    :
+
+    Memcpy(string,"Hello!!\n",9)
+
+    panic::Panic(string)
+
+    rtc::RTC rtcDriver
+    rtcDriver.Init()
+    rtcDriver.PrintDateTime()
+
+    mmu::MMU mmuDriver
+    mmuDriver.Init()
+    //mmuDriver.EnablePaging()
 
     pci::PCI pciDriver
     pciDriver.Init(pci::PCIPort::Address,pci::PCIPort::Data)
     pciDriver.Probe()
 
-    serialDriver.Write("-> TODO => Implement Kernel Panic\n")
+    panic::Panic("-> All Jobs Done !! CPU HALTING \n")
 :

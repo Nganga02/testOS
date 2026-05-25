@@ -4,21 +4,15 @@ bits 32
 global _start
 extern main
 
+BOOT_INFO      equ 0x8000
+RANGE_BUFFER   equ 0x7000
+
 
 _start:
 pm_begin:
-
-	mov ax,DATA_SEG
-	mov ds,ax
-	mov es,ax
-	mov fs,ax
-	mov gs,ax
-	mov ss,ax
-	mov esp,0x7c00
-	mov ebp,esp
-
-
-    call main
+	push BOOT_INFO
+	call main
+	add esp, 4
 	jmp $
 	hlt
 	jmp pm_begin ; should never reach here

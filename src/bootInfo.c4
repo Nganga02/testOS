@@ -1,0 +1,6 @@
+use rangeSet::rangeSet as rangeSet
+
+struct BootInfo:
+    rangeSet::Range *ranges
+    u32 count
+:

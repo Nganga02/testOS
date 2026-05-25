@@ -94,6 +94,31 @@ impl Serial:
         return ii
     :
 
+    fn WriteI32(i32 value)->void:
+        if value == 0:
+            self->WriteByte('0')
+            return
+        :
+
+        if value < 0:
+            self->WriteByte('-')
+            value = -value
+        :
+
+        char [12]buffer
+        u32 index = 0
+
+        while value > 0:
+            buffer[index] = '0' + (value % 10)
+            value /= 10
+            index += 1
+        :
+
+        while index > 0:
+            index -= 1
+            self->WriteByte(buffer[index])
+        :
+    :
 
     fn HexChar(u8 v)->char:
         if v < 10:
