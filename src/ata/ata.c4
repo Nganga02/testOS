@@ -1,5 +1,85 @@
 use io::port as ports
 
-struct ATA:
-    i32 data    
+enum ATACommand:
+    Read = 0x20
 :
+
+struct ATA:
+    ports::Port16 dataRegister
+    ports::Port8 errorRegister
+    ports::Port8 sectorCountRegister
+    ports::Port8 lowLBARegister
+    ports::Port8 midLBARegister
+    ports::Port8 highLBARegister
+    ports::Port8 driveRegister
+    ports::Port8 statusRegister
+:
+
+impl ATA:
+    fn Init()->void:
+        self->dataRegister.Init(0x1f0)
+        self->errorRegister.Init(0x1f1)
+        self->sectorCountRegister.Init(0x1f2)
+        self->lowLBARegister.Init(0x1f3)
+        self->midLBARegister.Init(0x1f4)
+        self->highLBARegister.Init(0x1f5)
+        self->driveRegister.Init(0x1f6)
+        self->statusRegister.Init(0x1f7)
+    :
+
+
+    // read a sector number of sectors from disk
+    // Starting at disk address given by lba
+    
+    fn ReadSectors(u32 lba,u32 sectors,void *buffer)->u32:
+        // Select the Master Drive and pass part of the LBA
+        self->driveRegister.Write((lba >> 24) | 0xe0)
+
+        // Send the total number of sectors to read
+        self->sectorCountRegister.Write(sectors)
+
+        //send the remaining parts of the LBA
+
+        self->lowLBARegister.Write((lba & 0xff) as u8)
+        self->midLBARegister.Write(((lba >> 8) & 0xff) as u8)
+        self->highLBARegister.Write(((lba >> 16) & 0xff) as u8)
+
+        // issue the read command
+        self->statusRegister.Write(ATACommand::Read)
+
+
+        u16 *tmpBuffer = buffer as u16 *
+        u32 ii         = 0
+
+        while ii < sectors:
+            
+            // poll till the buffer is ready
+            // This is easier than interrupt-driven
+            //  However,cpu cycles are wasted,idc about at the moment
+
+            u8 wait = self->statusRegister.Read()
+
+            while not (wait & 0x08):
+                wait = self->statusRegister.Read()
+            :
+
+            u32 jj = 0
+
+            while jj < 256:
+                tmpBuffer@write(self->dataRegister.Read())
+                tmpBuffer@advance(1)
+
+                jj += 1
+            :
+
+            ii += 1
+
+        :
+
+        return 0
+    :
+:
+
+
+
+

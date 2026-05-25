@@ -13,5 +13,15 @@ struct Entry:
     u32 data // 4k aligned address[:20] | avail[:3] | G | S | 0 | A | D | W | U | R | P 
 :
 
+impl Entry:
+    fn SetAddress(u32 address)->void:
+        
+    :
+:
+
+
+struct PageTable:
+    Entry *directory
+:
 
 

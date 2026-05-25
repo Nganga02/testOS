@@ -1,4 +1,3 @@
-
 use vga::vga as vg
 use serial::serial as serial
 use pci::pci as pci
@@ -75,7 +74,7 @@ pub fn main(bInfo::BootInfo *bootInfo)->i32:
 
     Memcpy(string,"Hello!!\n",9)
 
-    panic::Panic(string)
+    serialDriver.Write(string)
 
     rtc::RTC rtcDriver
     rtcDriver.Init()
