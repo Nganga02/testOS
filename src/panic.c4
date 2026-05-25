@@ -1,0 +1,18 @@
+use serial::serial as serial
+use vga::vga       as vg
+
+foreign "C":
+    fn disable_interrupts()->void
+    fn halt_cpu()->void
+:
+
+pub fn Panic(str message)->void:
+    serial::Serial serialDriver
+    serialDriver.Init()
+    serialDriver.Write(message)
+    serialDriver.Write("\n")
+
+    disable_interrupts()
+    halt_cpu()
+:
+

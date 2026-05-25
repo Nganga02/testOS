@@ -1,0 +1,58 @@
+use rangeSet::rangeSet as rangeSet
+use bootInfo as bInfo
+use memory::layout as lay
+
+struct BootAllocator:
+    rangeSet::RangeSet memoryMap
+:
+
+impl BootAllocator:
+    fn Init(bInfo::BootInfo *bootInfo)->void:
+        u64 ii = 0
+
+        rangeSet::Range range
+
+        self->memoryMap.Init()
+
+        while ii < bootInfo->count:
+            range = bootInfo->ranges[ii]
+
+            self->memoryMap.Insert(range)
+
+            ii += 1
+        :
+        
+        range.Init(0,0x100000)
+
+        self->memoryMap.Remove(range)
+    :
+
+    fn Allocate(u32 size,u32 alignment)->u8 *:
+        lay::Layout layout
+        layout.Init(size,alignment)
+
+        return self->memoryMap.Allocate(layout)
+    :
+
+    fn GetTotalRAM()->u32:
+        return self->memoryMap.Sum()
+    :
+:
+
+const BootAllocator bootAllocator
+
+fn Init(bInfo::BootInfo *bootInfo)->void:
+    BootAllocator *a = &bootAllocator as BootAllocator *
+    a->Init(bootInfo)
+:
+
+fn Kmalloc(u32 size,u32 alignment)->u8 *:
+    BootAllocator *a = &bootAllocator as BootAllocator *
+    return a->Allocate(size,alignment)
+:
+
+
+fn GetTotalRAM()->u32:
+    BootAllocator *a = &bootAllocator as BootAllocator *
+    return a->GetTotalRAM()
+:

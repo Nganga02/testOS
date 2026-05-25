@@ -16,4 +16,6 @@ qemu-system-x86_64 \
     -device rtl8139,netdev=net1,mac=12:34:ae:78:aa:bb \
     -device usb-ehci,id=ehci \
     -device qemu-xhci,id=xhci \
-    -serial stdio
+    -rtc base=localtime       \
+    -serial stdio            \
+    -m 2G

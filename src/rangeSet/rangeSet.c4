@@ -1,0 +1,344 @@
+use panic as panic
+use memory::layout as layout
+
+
+
+fn Swap(u32 *a,u32 *b)->void:
+    u32 tmp = a@read()
+    a@write(b@read())
+    b@write(tmp)
+:
+
+fn Max(u32 a,u32 b)->u32:
+    if a > b:
+        return a
+    :
+    return b
+:
+
+
+fn Min(u32 a,u32 b)->u32:
+    if a < b:
+        return a
+    :
+
+    return b
+:
+
+struct Range:
+    u32 start
+    u32 end
+:
+
+impl Range:
+    fn Init(u32 start,u32 end)->void:
+        self->start = start
+        self->end   = end
+    :
+:
+
+
+struct RangeSet:
+    Range [32]ranges
+    u32 inUse
+:
+
+impl RangeSet:
+    fn Init()->void:
+        u32 ii = 0
+
+        while ii < 32:
+            Range *range = &self->ranges[ii]
+            range->Init(0,0)
+            ii += 1
+        :
+
+        self->inUse = 0
+    :
+
+
+    fn SwapRange(Range *a,Range *b)->void:
+        Range tmp = a@read()
+        a@write(b@read())
+        b@write(tmp)
+    :
+
+
+    fn SaturatingAdd(u32 a,u32 b)->u32:
+        const u32 U32_MAX = 0xffffffff as u32
+
+        if a > (U32_MAX - b):
+            return U32_MAX
+        :
+
+        return a + b
+    :
+
+    fn SaturatingSub(u32 a,u32 b)->u32:
+        if a < b:
+            return 0
+        :
+
+        return a - b
+    :
+
+    fn CheckedAdd(u32 *result,u32 a,u32 b)->u32:
+        const u32 U32_MAX = 0xffffffff as u32
+
+        if a > U32_MAX - b:
+            return 0
+        :
+
+        result@write(a + b)
+        return 1
+    :
+
+    fn OverLaps(Range a,Range b)->u32:
+        u32 x1 = a.start
+        u32 x2 = self->SaturatingAdd(a.end,1)
+        u32 y1 = b.start
+        u32 y2 = self->SaturatingAdd(b.end,1)
+
+        if x1 > x2:
+            Swap(&x1,&x2)
+        :
+
+        if y1 > y2:
+            Swap(&y1,&y2)
+        :
+
+        // check for overlap
+        return (x1 <= y2) and (y1 <= x2)
+    :
+
+
+    fn Contains(Range a,Range b)->u32:
+        u32 x1 = a.start
+        u32 x2 = self->SaturatingAdd(a.end,1)
+        u32 y1 = b.start
+        u32 y2 = self->SaturatingAdd(b.end,1)
+
+        if x1 > x2:
+            Swap(&x1,&x2)
+        :
+
+        if y1 > y2:
+            Swap(&y1,&y2)
+        :
+
+        // check for containment
+        return (x1 >= y1) and (x2 <= y2)
+    :
+
+
+    // Delete the Range contained at index
+    // loop from index and swap out the desired range to the end,finally decrement inUse
+
+    fn Delete(u32 index)->void:
+        u32 ii = index
+
+        while ii < self->inUse:
+            self->SwapRange(&self->ranges[ii],&self->ranges[ii + 1])
+            ii += 1
+        :
+
+        self->inUse -= 1
+    :
+
+
+    // Insert a new range into the Rangeset
+    // If the range overlaps wiith an existing range,the range will be merged.
+    // No overlaps makes the range to just be added to the RangeSet
+     
+    fn Insert(Range range)->void:
+        
+        loop:
+            u32 shouldBreak = 1
+            u32 ii          = 0
+
+            while ii < self->inUse:
+                Range entry =  self->ranges[ii]
+
+                // check for overlap or touch with and existing range
+
+                if not self->OverLaps(range,entry):
+                    ii += 1
+                    continue
+                :
+
+                range.start = Min(range.start,entry.start)
+                range.end   = Max(range.end,entry.end)
+                shouldBreak = 0
+
+                self->Delete(ii)
+
+                break
+            :
+
+            if shouldBreak:
+                break
+            :
+        :
+
+        self->ranges[self->inUse] = range
+        self->inUse              += 1
+    :
+
+
+    // Remove a range from the RangeSet
+    // Any Range in the Rangeset which overlaps with 'range' will be trimmed
+    // such that there ia no more overlap.
+    // If this results in a range in the set becoming empty,it will be deleted from the RangeSet
+
+    fn Remove(Range range)->void:
+
+          loop:
+            u32 shouldBreak = 1
+            u32 ii          = 0
+
+            while ii < self->inUse:
+                Range entry =  self->ranges[ii]
+
+                // check for overlap or touch with and existing range
+
+                if not self->OverLaps(range,entry):
+                    ii += 1
+                    continue
+                :
+
+                // if this entry is entirely contained by the range to remove,delete it
+
+                if self->Contains(entry,range):
+                    shouldBreak = 0
+                    self->Delete(ii)
+                    break
+                :
+
+                // At this Point we know there is partial overlap.
+                // Meaning,we need to adjust the size of the current range.
+                // Potentially inserting a new entry if the entry is split in two
+
+                if range.start <= entry.start:
+                    // if the overlap is on the low end of the range
+                    // adjust the start of the range to the end of the range we want to remove
+                    self->ranges[ii].start = self->SaturatingAdd(range.end,1)
+                :
+                elif range.end >= entry.end:
+                    // If the overlap is on the high end of the range
+                    // Adjust the end of the range to the start of the range we want to remove
+                    self->ranges[ii].end = self->SaturatingSub(range.start,1)
+                :
+                else:
+                    // If the range to remove fits inside the range,split it into two
+
+                    self->ranges[ii].start = self->SaturatingAdd(range.end,1)
+
+                    Range newRange
+                    newRange.Init(entry.start,self->SaturatingSub(range.start,1))
+
+                    self->ranges[self->inUse] = newRange
+                    self->inUse              += 1
+                    shouldBreak               = 0
+
+                    break
+                :
+
+                ii += 1
+            :
+
+            if shouldBreak:
+                break
+            :
+        : 
+    :
+
+    // Remove a RangeSet from self
+    fn Subtract(RangeSet *rangeSet)->void:
+        u64 ii = 0
+
+        while ii < self->inUse:
+            Range range = rangeSet->ranges[ii]
+            self->Remove(range)
+
+            ii += 1
+        :
+    :
+
+
+    // Compute the size of the range covered by this RangeSet
+
+    fn Sum()->u32:
+        Range range
+
+        u32 status = 0
+        u32 result = 0
+        u32 ii     = 0
+
+
+        while ii < self->inUse:
+            u32 tmp = 0
+            range   = self->ranges[ii]
+            status  = self->CheckedAdd(&tmp,range.end - range.start,1)
+            
+            if status == 0:
+                panic::Panic("Integer Overflow on RangeSet Sum")
+            :
+
+            result += tmp
+            ii     += 1
+        :
+
+        return result
+    :
+
+
+    fn Allocate(layout::Layout allocateLayout)->u8 *:
+        if not allocateLayout.IsPowerOfTwo():
+            panic::Panic("RangeSet[Allocate] : Early Fail")
+            return 0 as u8 *
+        :
+
+        const u32 U32_MAX = 0xffffffff as u32
+        u32 size          = allocateLayout.size
+        u32 alignment     = allocateLayout.alignment
+        u32 status        = 0
+        u32 ii            = 0
+        u8 *pointer       = 0 as u8 *
+
+
+        while ii < self->inUse:
+            Range range = self->ranges[ii]
+            u32 base    = range.start
+            u32 end     = 0
+            status      = self->CheckedAdd(&end,base,size - 1)
+            
+            if status == 0:
+                panic::Panic("Integer overflow in Allocate!")
+            :
+
+            // Assert that this allocation is addressable in 32-bit mode
+            // And Assert that the range has enough room to allocate
+
+            if (base > U32_MAX) or (end > U32_MAX) or (end > range.end):
+                ii += 1
+                continue
+            :
+
+            // Allocation success
+
+            u32 alignmentFix = (alignment - (range.start & (alignment - 1))) & (alignment - 1)
+            pointer          = (base + alignmentFix) as u8 *
+
+            self->Remove(range)
+            //panic::Panic("Allocation Success")
+
+            return pointer
+            break
+        :
+
+        return pointer
+    :
+    
+:
+
+

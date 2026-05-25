@@ -1,0 +1,245 @@
+use io::port as ports
+use serial::serial as serial
+
+struct RTC:
+    ports::Port8 address
+    ports::Port8 data
+:
+
+impl RTC:
+    fn Init()->void:
+        self->address.Init(112)
+        self->data.Init(113)
+    :
+
+    fn Read(u8 register)->u8:
+        self->address.Write(register)
+        return self->data.Read()
+    :
+
+    fn Write(u8 register,u8 value)->void:
+        self->address.Write(register)
+        self->data.Write(value)
+    :
+
+    fn IsUpdating()->u8:
+        self->address.Write(10)
+        return self->data.Read() & 128
+    :
+
+    fn BCDToBinary(u8 value)->u8:
+        return (value & 15) + ((value / 16) * 10)
+    :
+
+    fn GetSecond()->u8:
+        while self->IsUpdating():
+        :
+
+        u8 second = self->Read(0)
+
+        u8 registerB = self->Read(11)
+
+        if (registerB & 4) == 0:
+            second = self->BCDToBinary(second)
+        :
+
+        return second
+    :
+
+    fn GetMinute()->u8:
+        while self->IsUpdating():
+        :
+
+        u8 minute = self->Read(2)
+
+        u8 registerB = self->Read(11)
+
+        if (registerB & 4) == 0:
+            minute = self->BCDToBinary(minute)
+        :
+
+        return minute
+    :
+
+    fn GetHour()->u8:
+        while self->IsUpdating():
+        :
+
+        u8 hour = self->Read(4)
+
+        u8 registerB = self->Read(11)
+
+        if (registerB & 4) == 0:
+            hour = self->BCDToBinary(hour & 127)
+        :
+
+        if (registerB & 2) == 0:
+            if (hour & 128):
+                hour = ((hour & 127) + 12) % 24
+            :
+        :
+
+        return hour
+    :
+
+
+
+    fn GetWeekDay()->u8:
+        while self->IsUpdating():
+        :
+
+        u8 weekday = self->Read(6)
+
+        u8 registerB = self->Read(11)
+
+        if (registerB & 4) == 0:
+            weekday = self->BCDToBinary(weekday)
+        :
+
+        return weekday
+    :
+
+
+    fn GetDayOfMonth()->u8:
+        while self->IsUpdating():
+        :
+
+        u8 day = self->Read(7)
+
+        u8 registerB = self->Read(11)
+
+        if (registerB & 4) == 0:
+            day = self->BCDToBinary(day)
+        :
+
+        return day
+    :
+
+
+    fn GetMonth()->u8:
+        while self->IsUpdating():
+        :
+
+        u8 month = self->Read(8)
+
+        u8 registerB = self->Read(11)
+
+        if (registerB & 4) == 0:
+            month = self->BCDToBinary(month)
+        :
+
+        return month
+    :
+
+
+    fn GetYear()->u8:
+        while self->IsUpdating():
+        :
+
+        u8 year = self->Read(9)
+
+        u8 registerB = self->Read(11)
+
+        if (registerB & 4) == 0:
+            year = self->BCDToBinary(year)
+        :
+
+        return year
+    :
+
+    fn PrintDateTime()->void:
+        u8 second  = self->GetSecond()
+        u8 minute  = self->GetMinute()
+        u8 hour    = self->GetHour()
+        u8 weekday = self->GetWeekDay()
+        u8 day     = self->GetDayOfMonth()
+        u8 month   = self->GetMonth()
+        u8 year    = self->GetYear()
+
+        serial::Serial serialDriver
+        serialDriver.Init()
+
+        
+
+        if weekday == 1:
+            serialDriver.Write("Sunday")
+        :
+        elif weekday == 2:
+            serialDriver.Write("Monday")
+        :
+        elif weekday == 3:
+            serialDriver.Write("Tuesday")
+        :
+        elif weekday == 4:
+            serialDriver.Write("Wednesday")
+        :
+        elif weekday == 5:
+            serialDriver.Write("Thursday")
+        :
+        elif weekday == 6:
+            serialDriver.Write("Friday")
+        :
+        elif weekday == 7:
+            serialDriver.Write("Saturday")
+        :
+        else:
+            serialDriver.Write("Unknown")
+        :
+
+        serialDriver.Write(" ")
+
+        if month == 1:
+            serialDriver.Write("January")
+        :
+        elif month == 2:
+            serialDriver.Write("February")
+        :
+        elif month == 3:
+            serialDriver.Write("March")
+        :
+        elif month == 4:
+            serialDriver.Write("April")
+        :
+        elif month == 5:
+            serialDriver.Write("May")
+        :
+        elif month == 6:
+            serialDriver.Write("June")
+        :
+        elif month == 7:
+            serialDriver.Write("July")
+        :
+        elif month == 8:
+            serialDriver.Write("August")
+        :
+        elif month == 9:
+            serialDriver.Write("September")
+        :
+        elif month == 10:
+            serialDriver.Write("October")
+        :
+        elif month == 11:
+            serialDriver.Write("November")
+        :
+        elif month == 12:
+            serialDriver.Write("December")
+        :
+        else:
+            serialDriver.Write("Unknown")
+        :
+
+        serialDriver.Write(",")
+        serialDriver.WriteI32(day as i32)
+        serialDriver.Write("/")
+        serialDriver.WriteI32(month as i32)
+        serialDriver.Write("/20")
+        serialDriver.WriteI32(year as i32)
+        serialDriver.Write(",")
+        serialDriver.WriteI32(hour as i32)
+        serialDriver.Write(":")
+        serialDriver.WriteI32(minute as i32)
+        serialDriver.Write(":")
+        serialDriver.WriteI32(second as i32)
+        serialDriver.Write("\n")
+    :
+:

@@ -1,0 +1,45 @@
+enum EntryKind:
+    ALLOCATED = 0
+    FREE      = 1
+:
+
+struct Entry:
+    u8 data // hasNext | isFirst | reserved[:2] | type[:4] 
+:
+
+impl Entry:
+    fn Init()->void:
+        self->data = 0
+    :
+
+    fn SetHasNext(u8 value)->void:
+        self->data = self->data | ((value << 7) & 1)
+    :
+
+
+    fn SetIsFirst(u8 value)->void:
+        self->data = self->data | ((value << 6) & 1)
+    :
+
+
+    fn SetType(u8 value)->void:
+        self->data = self->data | (value & 15)
+    :
+    
+
+    fn GetHasNext()->u8:
+        return (self->data >> 7) & 1
+    :
+
+
+    fn GetIsFirst()->u8:
+        return (self->data >> 6) & 1
+    :
+
+
+    fn GetType()->u8:
+        return (self->data & 15)
+    :
+:
+
+
